@@ -11,7 +11,6 @@ import {Badges} from "./Badges.sol";
 import {IDisputeResolver} from "../interfaces/IDisputeResolver.sol";
 
 /// @title Registry
-/// @dev
 contract Registry is IRegistry {
     /// @notice The owner of the registry
     address public immutable owner;
@@ -41,6 +40,9 @@ contract Registry is IRegistry {
     Badges public immutable badges;
 
     constructor(address _token, address _badges, address _escrow) {
+        if (_token == address(0) || _badges == address(0) || _escrow == address(0)) {
+            revert InvalidConstructorParams();
+        }
         owner = msg.sender;
         token = ERC20(_token);
         badges = Badges(_badges);
@@ -88,7 +90,6 @@ contract Registry is IRegistry {
 
     /// @inheritdoc IRegistry
     function updateService(uint40 _serviceId, string calldata _description) external {
-        // todo: add onlyTasker
         if (services[_serviceId].tasker != msg.sender) revert Unauthorized();
 
         Service storage service = services[_serviceId];
@@ -102,6 +103,7 @@ contract Registry is IRegistry {
         uint40 _serviceId,
         uint256 _price,
         address _beneficiary,
+        uint256 _duration,
         string calldata _agreementURI
     ) external {
         if (services[_serviceId].tasker != msg.sender) revert Unauthorized();
@@ -110,7 +112,7 @@ contract Registry is IRegistry {
 
         uint40 nextDealId = uint40(deals.length);
 
-        uint256 agreementId = _createEscrowAgreement(_beneficiary, _price, _agreementURI);
+        uint256 agreementId = _createEscrowAgreement(_beneficiary, _price, _duration, _agreementURI);
 
         deals.push(
             Deal({
@@ -139,7 +141,6 @@ contract Registry is IRegistry {
 
     /// @inheritdoc IRegistry
     function dispute(uint40 _serviceId) external {
-        // you can't dispute unless the dispute resolveraddress is set
         if (disputeResolver == address(0)) revert DisputeResolverNotSet();
 
         IDisputeResolver(disputeResolver).dispute(_serviceId);
@@ -149,12 +150,11 @@ contract Registry is IRegistry {
 
     /// @inheritdoc IRegistry
     function setDisputeResolver(address _disputeResolver) external {
-        // todo: add onlyOwner
         if (owner != msg.sender) revert Unauthorized();
 
         disputeResolver = _disputeResolver;
 
-        // todo: emit event?
+        emit DisputeResolverSet(_disputeResolver);
     }
 
     // Escrow functions
@@ -162,10 +162,11 @@ contract Registry is IRegistry {
     function _createEscrowAgreement(
         address _beneficiary,
         uint256 _amount,
+        uint256 _duration,
         string calldata _agreementURI
     ) internal returns (uint256 _agreementId) {
         _agreementId = escrow.createERC20Transaction(
-            _amount, IERC20(address(token)), block.timestamp + 1 days, _agreementURI, payable(_beneficiary)
+            _amount, IERC20(address(token)), block.timestamp + _duration, _agreementURI, payable(_beneficiary)
         );
     }
 }
