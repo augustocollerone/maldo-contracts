@@ -5,18 +5,6 @@ import {ERC20} from "@solady/tokens/ERC20.sol";
 
 /// @title IRegistry
 interface IRegistry {
-    /// @notice Status of a service in the registry
-    /// @dev Unused
-    /// @param NEW Initial state when service is created
-    /// @param VALIDATED Service has been validated/approved
-    /// @param BANNED Service has been banned from the platform
-    /// @param CANCELLED Service has been cancelled by the owner
-    enum Status {
-        NEW,
-        VALIDATED,
-        BANNED,
-        CANCELLED
-    }
 
     /// @notice User structure
     /// @param profile Ideally an IPFS hash, for now simply a string
@@ -29,13 +17,11 @@ interface IRegistry {
     /// @notice Service listing structure
     /// @dev
     /// @param id Unique identifier for the service
-    /// @param owner Address of the service provider
-    /// @param status Current status of the service
+    /// @param tasker Address of the service provider
     /// @param description Ideally an IPFS hash, for now simply a string
     struct Service {
         uint40 id;
         address tasker;
-        Status status;
         string description;
     }
 
@@ -60,12 +46,9 @@ interface IRegistry {
         uint40 id;
         uint40 serviceId;
         address beneficiary;
-        // address token;
         uint256 agreementId;
         uint256 price;
     }
-    // DealStatus status?
-    // uint32 timeout?
 
     //////////////////////////////////////////////////////
     /////////////////////// EVENTS ///////////////////////

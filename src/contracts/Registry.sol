@@ -81,7 +81,7 @@ contract Registry is IRegistry {
     function addService(string calldata _description) external {
         uint40 serviceId = uint40(services.length);
 
-        services.push(Service({id: serviceId, status: Status.NEW, tasker: msg.sender, description: _description}));
+        services.push(Service({id: serviceId, tasker: msg.sender, description: _description}));
 
         emit ServiceCreated(serviceId);
     }
@@ -130,7 +130,6 @@ contract Registry is IRegistry {
         if (deals[_dealId].beneficiary != msg.sender && services[deals[_dealId].serviceId].tasker != msg.sender) {
             revert Unauthorized();
         }
-        // if (deals[_dealId].status != DealStatus.COMPLETED) revert DealNotCompleted();
 
         // add review to the service
         ratings[deals[_dealId].serviceId].push(Rating({reviewer: msg.sender, rating: _rating, review: _review}));
