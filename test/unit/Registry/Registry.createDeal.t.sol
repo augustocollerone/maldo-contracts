@@ -79,7 +79,7 @@ contract RegistryCreateDealTest is Test {
 
         // Act
         vm.prank(tasker);
-        registry.createDeal(serviceId, dealPrice, beneficiary, agreementURI);
+        registry.createDeal(serviceId, dealPrice, beneficiary, 1 days, agreementURI);
 
         // Assert - verify deal was created
         (uint40 dealId, uint40 dealServiceId, address dealBeneficiary, uint256 agreementId, uint256 price) =
@@ -100,8 +100,8 @@ contract RegistryCreateDealTest is Test {
 
         // Act
         vm.startPrank(tasker);
-        registry.createDeal(serviceId, dealPrice1, beneficiary, "agreement1");
-        registry.createDeal(serviceId, dealPrice2, beneficiary2, "agreement2");
+        registry.createDeal(serviceId, dealPrice1, beneficiary, 1 days, "agreement1");
+        registry.createDeal(serviceId, dealPrice2, beneficiary2, 1 days, "agreement2");
         vm.stopPrank();
 
         // Assert - verify both deals were created
@@ -120,10 +120,10 @@ contract RegistryCreateDealTest is Test {
 
         // Act - Both taskers create deals for their own services
         vm.prank(tasker);
-        registry.createDeal(serviceId, dealPrice, beneficiary, "tasker1_deal");
+        registry.createDeal(serviceId, dealPrice, beneficiary, 1 days, "tasker1_deal");
 
         vm.prank(anotherTasker);
-        registry.createDeal(anotherServiceId, dealPrice, beneficiary, "tasker2_deal");
+        registry.createDeal(anotherServiceId, dealPrice, beneficiary, 1 days, "tasker2_deal");
 
         // Assert
         (, uint40 deal1ServiceId,,,) = registry.deals(0);
@@ -141,9 +141,9 @@ contract RegistryCreateDealTest is Test {
 
         // Act
         vm.startPrank(tasker);
-        registry.createDeal(serviceId, dealPrice, beneficiary, "deal1");
-        registry.createDeal(serviceId, dealPrice, beneficiary2, "deal2");
-        registry.createDeal(serviceId, dealPrice, beneficiary3, "deal3");
+        registry.createDeal(serviceId, dealPrice, beneficiary, 1 days, "deal1");
+        registry.createDeal(serviceId, dealPrice, beneficiary2, 1 days, "deal2");
+        registry.createDeal(serviceId, dealPrice, beneficiary3, 1 days, "deal3");
         vm.stopPrank();
 
         // Assert
@@ -167,7 +167,7 @@ contract RegistryCreateDealTest is Test {
         // Act & Assert
         vm.startPrank(tasker);
         for (uint256 i = 0; i < prices.length; i++) {
-            registry.createDeal(serviceId, prices[i], beneficiary, "test_deal");
+            registry.createDeal(serviceId, prices[i], beneficiary, 1 days, "test_deal");
             (,,,, uint256 dealPrice) = registry.deals(i);
             assertEq(dealPrice, prices[i], "Deal price should match expected price");
         }
@@ -185,7 +185,7 @@ contract RegistryCreateDealTest is Test {
         // Act & Assert
         vm.prank(unauthorized);
         vm.expectRevert(IRegistry.Unauthorized.selector);
-        registry.createDeal(serviceId, dealPrice, beneficiary, "unauthorized_deal");
+        registry.createDeal(serviceId, dealPrice, beneficiary, 1 days, "unauthorized_deal");
     }
 
     function test_createDeal_revertWhen_differentTaskerTriesToCreateDeal() public {
@@ -195,7 +195,7 @@ contract RegistryCreateDealTest is Test {
         // Act & Assert - anotherTasker tries to create deal for tasker's service
         vm.prank(anotherTasker);
         vm.expectRevert(IRegistry.Unauthorized.selector);
-        registry.createDeal(serviceId, dealPrice, beneficiary, "cross_tasker_deal");
+        registry.createDeal(serviceId, dealPrice, beneficiary, 1 days, "cross_tasker_deal");
     }
 
     function test_createDeal_revertWhen_invalidBeneficiary() public {
@@ -205,7 +205,7 @@ contract RegistryCreateDealTest is Test {
         // Act & Assert
         vm.prank(tasker);
         vm.expectRevert(IRegistry.InvalidBeneficiary.selector);
-        registry.createDeal(serviceId, dealPrice, address(0), "invalid_beneficiary");
+        registry.createDeal(serviceId, dealPrice, address(0), 1 days, "invalid_beneficiary");
     }
 
     function test_createDeal_revertWhen_nonExistentService() public {
@@ -216,7 +216,7 @@ contract RegistryCreateDealTest is Test {
         // Act & Assert
         vm.prank(tasker);
         vm.expectRevert(); // Should revert with out-of-bounds array access
-        registry.createDeal(nonExistentServiceId, dealPrice, beneficiary, "nonexistent_service");
+        registry.createDeal(nonExistentServiceId, dealPrice, beneficiary, 1 days, "nonexistent_service");
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -233,7 +233,7 @@ contract RegistryCreateDealTest is Test {
 
         // Act
         vm.prank(tasker);
-        registry.createDeal(serviceId, dealPrice, beneficiary, "event_test_deal");
+        registry.createDeal(serviceId, dealPrice, beneficiary, 1 days, "event_test_deal");
     }
 
     function test_createDeal_emitsMultipleEvents() public {
@@ -245,12 +245,12 @@ contract RegistryCreateDealTest is Test {
         // First event
         vm.expectEmit(true, false, false, true);
         emit DealCreated(0);
-        registry.createDeal(serviceId, dealPrice, beneficiary, "deal1");
+        registry.createDeal(serviceId, dealPrice, beneficiary, 1 days, "deal1");
 
         // Second event
         vm.expectEmit(true, false, false, true);
         emit DealCreated(1);
-        registry.createDeal(serviceId, dealPrice, beneficiary, "deal2");
+        registry.createDeal(serviceId, dealPrice, beneficiary, 1 days, "deal2");
 
         vm.stopPrank();
     }
@@ -265,9 +265,9 @@ contract RegistryCreateDealTest is Test {
 
         // Act - Create multiple deals with same beneficiary
         vm.startPrank(tasker);
-        registry.createDeal(serviceId, dealPrice, beneficiary, "deal1");
-        registry.createDeal(serviceId, dealPrice, beneficiary, "deal2");
-        registry.createDeal(serviceId, dealPrice, beneficiary, "deal3");
+        registry.createDeal(serviceId, dealPrice, beneficiary, 1 days, "deal1");
+        registry.createDeal(serviceId, dealPrice, beneficiary, 1 days, "deal2");
+        registry.createDeal(serviceId, dealPrice, beneficiary, 1 days, "deal3");
         vm.stopPrank();
 
         // Assert - All deals should be created successfully
@@ -283,7 +283,7 @@ contract RegistryCreateDealTest is Test {
 
         // Act - Tasker creates deal where they are also the beneficiary
         vm.prank(tasker);
-        registry.createDeal(serviceId, dealPrice, tasker, "self_benefit_deal");
+        registry.createDeal(serviceId, dealPrice, tasker, 1 days, "self_benefit_deal");
 
         // Assert
         (,, address dealBeneficiary,,) = registry.deals(0);
@@ -297,7 +297,7 @@ contract RegistryCreateDealTest is Test {
 
         // Act & Assert - Should succeed with empty URI
         vm.prank(tasker);
-        registry.createDeal(serviceId, dealPrice, beneficiary, emptyURI);
+        registry.createDeal(serviceId, dealPrice, beneficiary, 1 days, emptyURI);
 
         // Verify deal was created
         (uint40 dealId,,,, uint256 price) = registry.deals(0);
@@ -316,7 +316,7 @@ contract RegistryCreateDealTest is Test {
 
         // Act & Assert - Should succeed with long URI
         vm.prank(tasker);
-        registry.createDeal(serviceId, dealPrice, beneficiary, longURI);
+        registry.createDeal(serviceId, dealPrice, beneficiary, 1 days, longURI);
 
         // Verify deal was created
         (uint40 dealId,,,, uint256 price) = registry.deals(0);
@@ -334,7 +334,7 @@ contract RegistryCreateDealTest is Test {
 
         // Act - Create deal for one service
         vm.prank(tasker);
-        registry.createDeal(serviceId, dealPrice, beneficiary, "isolated_deal");
+        registry.createDeal(serviceId, dealPrice, beneficiary, 1 days, "isolated_deal");
 
         // Assert - Other service should be unaffected
         (uint40 otherServiceId, address otherTasker,) = registry.services(anotherServiceId);
@@ -349,7 +349,7 @@ contract RegistryCreateDealTest is Test {
 
         // Act
         vm.prank(tasker);
-        registry.createDeal(serviceId, dealPrice, beneficiary, "stake_test_deal");
+        registry.createDeal(serviceId, dealPrice, beneficiary, 1 days, "stake_test_deal");
 
         // Assert - Stake should be unchanged
         (, uint256 finalStake) = registry.users(tasker);
@@ -367,6 +367,6 @@ contract RegistryCreateDealTest is Test {
 
         // Act & Assert - Log gas usage for reference
         vm.prank(tasker);
-        registry.createDeal(serviceId, dealPrice, beneficiary, agreementURI);
+        registry.createDeal(serviceId, dealPrice, beneficiary, 1 days, agreementURI);
     }
 }

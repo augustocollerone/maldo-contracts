@@ -97,14 +97,14 @@ contract RegistryAccessControlTest is Test {
         // Act & Assert
         vm.prank(unauthorized);
         vm.expectRevert(IRegistry.Unauthorized.selector);
-        registry.createDeal(serviceId, price, beneficiary, agreementURI);
+        registry.createDeal(serviceId, price, beneficiary, 1 days, agreementURI);
     }
 
     function test_createDeal_revertWhen_invalidBeneficiary() public {
         // Act & Assert
         vm.prank(tasker);
         vm.expectRevert(IRegistry.InvalidBeneficiary.selector);
-        registry.createDeal(serviceId, 50 ether, address(0), "https://example.com/agreement");
+        registry.createDeal(serviceId, 50 ether, address(0), 1 days, "https://example.com/agreement");
     }
 
     // Tests for rate
@@ -123,7 +123,7 @@ contract RegistryAccessControlTest is Test {
 
         // Create deal
         vm.prank(tasker);
-        registry.createDeal(serviceId, price, beneficiary, agreementURI);
+        registry.createDeal(serviceId, price, beneficiary, 1 days, agreementURI);
         uint40 dealId = 0; // First deal
 
         // Act & Assert

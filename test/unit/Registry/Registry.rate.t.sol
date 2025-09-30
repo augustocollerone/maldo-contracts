@@ -62,7 +62,7 @@ contract RegistryRateTest is Test {
         registry.stake(STAKE_AMOUNT);
         registry.addService("Test Service for Rating");
         serviceId = 0;
-        registry.createDeal(serviceId, DEAL_PRICE, beneficiary, "rating-test-deal");
+        registry.createDeal(serviceId, DEAL_PRICE, beneficiary, 1 days, "rating-test-deal");
         dealId = 0;
         vm.stopPrank();
     }
@@ -374,7 +374,7 @@ contract RegistryRateTest is Test {
     function test_rate_multipleDealsSameService() public {
         // Arrange - Create second deal for same service
         vm.prank(tasker);
-        registry.createDeal(serviceId, DEAL_PRICE, anotherBeneficiary, "second-deal");
+        registry.createDeal(serviceId, DEAL_PRICE, anotherBeneficiary, 1 days, "second-deal");
         uint40 secondDealId = 1;
 
         // Act - Rate both deals
@@ -397,7 +397,7 @@ contract RegistryRateTest is Test {
         token.approve(address(registry), STAKE_AMOUNT);
         registry.stake(STAKE_AMOUNT);
         registry.addService("Second Service");
-        registry.createDeal(1, DEAL_PRICE, beneficiary, "second-service-deal");
+        registry.createDeal(1, DEAL_PRICE, beneficiary, 1 days, "second-service-deal");
         vm.stopPrank();
 
         // Act - Rate both services
