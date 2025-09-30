@@ -72,12 +72,10 @@ contract RegistryServiceTest is Test {
         (
             uint40 id,
             address tasker,
-            IRegistry.Status status,
             string memory desc
         ) = registry.services(0);
 
         assertEq(id, 0, "Service ID should match");
-        assertEq(uint8(status), uint8(IRegistry.Status.NEW), "Service status should be NEW");
         assertEq(tasker, alice, "Tasker should be the service creator");
         assertEq(desc, description, "Description should match input");
     }
@@ -95,8 +93,8 @@ contract RegistryServiceTest is Test {
         registry.addService(desc2);
 
         // Assert - verify both services were created with correct IDs
-        (uint40 id1,,,) = registry.services(0);
-        (uint40 id2,,,) = registry.services(1);
+        (uint40 id1,,) = registry.services(0);
+        (uint40 id2,,) = registry.services(1);
         assertEq(id1, 0, "First service ID should be 0");
         assertEq(id2, 1, "Second service ID should be 1");
     }
@@ -113,9 +111,9 @@ contract RegistryServiceTest is Test {
         registry.addService("Charlie's service");
 
         // Assert - verify services were created with incrementing IDs
-        (uint40 id1,,,) = registry.services(0);
-        (uint40 id2,,,) = registry.services(1);
-        (uint40 id3,,,) = registry.services(2);
+        (uint40 id1,,) = registry.services(0);
+        (uint40 id2,,) = registry.services(1);
+        (uint40 id3,,) = registry.services(2);
         assertEq(id1, 0, "First service ID should be 0");
         assertEq(id2, 1, "Second service ID should be 1");
         assertEq(id3, 2, "Third service ID should be 2");
@@ -143,7 +141,7 @@ contract RegistryServiceTest is Test {
         registry.addService(description);
 
         // Assert
-        (,,,string memory desc) = registry.services(0);
+        (,,string memory desc) = registry.services(0);
         assertEq(desc, description, "Empty description should be allowed");
     }
 
@@ -163,7 +161,7 @@ contract RegistryServiceTest is Test {
         registry.addService(longDescription);
 
         // Assert
-        (,,,string memory desc) = registry.services(0);
+        (,,string memory desc) = registry.services(0);
         assertEq(desc, longDescription, "Long description should be stored correctly");
     }
 
@@ -179,7 +177,7 @@ contract RegistryServiceTest is Test {
         registry.updateService(0, updatedDescription);
 
         // Assert
-        (,,,string memory desc) = registry.services(0);
+        (,,string memory desc) = registry.services(0);
         assertEq(desc, updatedDescription, "Service description should be updated");
     }
 
@@ -221,7 +219,7 @@ contract RegistryServiceTest is Test {
         vm.prank(alice);
         registry.updateService(0, "Third description");
 
-        (,,,string memory desc) = registry.services(0);
+        (,,string memory desc) = registry.services(0);
         assertEq(desc, "Third description", "Service should support multiple updates");
     }
 

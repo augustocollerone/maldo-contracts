@@ -337,7 +337,7 @@ contract RegistryCreateDealTest is Test {
         registry.createDeal(serviceId, dealPrice, beneficiary, "isolated_deal");
 
         // Assert - Other service should be unaffected
-        (uint40 otherServiceId, address otherTasker,,) = registry.services(anotherServiceId);
+        (uint40 otherServiceId, address otherTasker,) = registry.services(anotherServiceId);
         assertEq(otherServiceId, anotherServiceId, "Other service ID should be unchanged");
         assertEq(otherTasker, anotherTasker, "Other service tasker should be unchanged");
     }
