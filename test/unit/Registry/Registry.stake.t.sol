@@ -7,7 +7,8 @@ import {Badges} from "../../../src/contracts/Badges.sol";
 import {IRegistry} from "../../../src/interfaces/IRegistry.sol";
 import {MockEscrow} from "../../mocks/MockEscrow.sol";
 import {MockToken} from "../../mocks/MockToken.sol";
-import {ERC20} from "@solady/tokens/ERC20.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {IERC20Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 
 contract RegistryStakeTest is Test {
     Registry public registry;
@@ -63,7 +64,9 @@ contract RegistryStakeTest is Test {
         vm.prank(alice);
         token.transfer(bob, INITIAL_BALANCE);
 
-        vm.expectRevert(abi.encodeWithSelector(ERC20.InsufficientBalance.selector));
+        vm.expectRevert(
+            abi.encodeWithSelector(IERC20Errors.ERC20InsufficientBalance.selector, alice, 0, STANDARD_STAKE)
+        );
         vm.prank(alice);
         registry.stake(STANDARD_STAKE);
     }
@@ -73,7 +76,9 @@ contract RegistryStakeTest is Test {
         vm.prank(alice);
         token.approve(address(registry), 0);
 
-        vm.expectRevert(abi.encodeWithSelector(ERC20.InsufficientAllowance.selector));
+        vm.expectRevert(
+            abi.encodeWithSelector(IERC20Errors.ERC20InsufficientAllowance.selector, address(registry), 0, STANDARD_STAKE)
+        );
         vm.prank(alice);
         registry.stake(STANDARD_STAKE);
     }

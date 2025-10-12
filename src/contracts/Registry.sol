@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import {ERC20} from "@solady/tokens/ERC20.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IRegistry} from "../interfaces/IRegistry.sol";
 // import {EscrowUniversal} from "@kleros/escrow-v2/EscrowUniversal.sol";
