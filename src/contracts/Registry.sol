@@ -4,11 +4,10 @@ pragma solidity ^0.8.24;
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IRegistry} from "../interfaces/IRegistry.sol";
-// import {EscrowUniversal} from "@kleros/escrow-v2/EscrowUniversal.sol";
-// import {EscrowView} from "@kleros/escrow-v2/EscrowView.sol";
 import {IEscrow} from "@kleros/escrow-v2/interfaces/IEscrow.sol";
 import {Badges} from "./Badges.sol";
 import {IDisputeResolver} from "../interfaces/IDisputeResolver.sol";
+import {IEscrowCustomBuyer} from "../interfaces/IEscrowCustomBuyer.sol";
 
 /// @title Registry
 contract Registry is IRegistry {
@@ -165,8 +164,8 @@ contract Registry is IRegistry {
         uint256 _duration,
         string calldata _agreementURI
     ) internal returns (uint256 _agreementId) {
-        _agreementId = escrow.createERC20Transaction(
-            _amount, IERC20(address(token)), block.timestamp + _duration, _agreementURI, payable(_beneficiary)
+        _agreementId = IEscrowCustomBuyer(address(escrow)).createERC20TransactionCustomBuyer(
+            _amount, IERC20(address(token)), block.timestamp + _duration, _agreementURI, payable(msg.sender), payable(_beneficiary)
         );
     }
 }
