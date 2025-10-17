@@ -1,10 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import {ERC20Mock} from "../../mocks/ERC20Mock.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+ 
+ /// @title MaldoToken
+contract MaldoToken is ERC20 {
+    constructor() ERC20("Maldo", "MLDO") {}
 
-/// @title MaldoToken
-/// @notice Currently unused.
-contract MaldoToken is ERC20Mock {
-    constructor() ERC20Mock() {}
+    function mint(address to, uint256 amount) external {
+        _mint(to, amount);
+    }
+
+    function burn(address from, uint256 amount) external {
+        _burn(from, amount);
+    }
 }

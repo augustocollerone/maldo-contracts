@@ -23,6 +23,17 @@ contract MockEscrow {
     ) external returns (uint256) {
         return nextId++;
     }
+
+    function createERC20TransactionCustomBuyer(
+        uint256,
+        address,
+        uint256,
+        string memory,
+        address payable,
+        address payable
+    ) external returns (uint256) {
+        return nextId++;
+    }
 }
 
 contract RegistryTest is Test {
