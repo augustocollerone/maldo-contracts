@@ -7,6 +7,17 @@ import {IEscrowCustomBuyer} from "../../src/interfaces/IEscrowCustomBuyer.sol";
 contract MockEscrow is IEscrowCustomBuyer {
     uint256 private _mockAgreementId;
 
+    struct Transaction {
+        uint256 amount;
+        address token;
+        uint256 deadline;
+        string transactionUri;
+        address payable buyer;
+        address payable seller;
+    }
+
+    mapping(uint256 => Transaction) public transactions;
+
     // IEscrowCustomBuyer methods
     function createERC20TransactionCustomBuyer(
         uint256 _amount,
@@ -16,8 +27,15 @@ contract MockEscrow is IEscrowCustomBuyer {
         address payable _buyer,
         address payable _seller
     ) external returns (uint256 transactionID) {
-        // In a mock, just return a simple incrementing agreement ID
-        return ++_mockAgreementId;
+        transactionID = ++_mockAgreementId;
+        transactions[transactionID] = Transaction({
+            amount: _amount,
+            token: address(_token),
+            deadline: _deadline,
+            transactionUri: _transactionUri,
+            buyer: _buyer,
+            seller: _seller
+        });
     }
 
     function createNativeTransactionCustomBuyer(
