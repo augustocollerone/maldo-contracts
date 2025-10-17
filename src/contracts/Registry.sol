@@ -165,7 +165,7 @@ contract Registry is IRegistry {
         string calldata _agreementURI
     ) internal returns (uint256 _agreementId) {
         _agreementId = IEscrowCustomBuyer(address(escrow)).createERC20TransactionCustomBuyer(
-            _amount, IERC20(address(token)), block.timestamp + _duration, _agreementURI, payable(msg.sender), payable(_beneficiary)
+            _amount, IERC20(address(token)), block.timestamp + _duration, _agreementURI, payable(_beneficiary), payable(msg.sender)
         );
     }
 }
