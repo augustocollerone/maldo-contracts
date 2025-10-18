@@ -41,22 +41,6 @@ contract RegistryServiceTest is Test {
         token.mint(alice, 1000 ether);
         token.mint(bob, 1000 ether);
         token.mint(charlie, 1000 ether);
-
-        // Approve token spending for each user
-        vm.prank(alice);
-        token.approve(address(registry), 1000 ether);
-        vm.prank(bob);
-        token.approve(address(registry), 1000 ether);
-        vm.prank(charlie);
-        token.approve(address(registry), 1000 ether);
-
-        // Stake tokens for each user to enable service creation
-        vm.prank(alice);
-        registry.stake(100 ether);
-        vm.prank(bob);
-        registry.stake(100 ether);
-        vm.prank(charlie);
-        registry.stake(100 ether);
     }
 
     // addService tests
@@ -224,7 +208,7 @@ contract RegistryServiceTest is Test {
     function test_updateService_revertNonExistentService() public {
         // Act & Assert
         vm.prank(alice);
-        vm.expectRevert(); // This will catch out-of-bounds array access
+        vm.expectRevert(IRegistry.InvalidServiceId.selector);
         registry.updateService(99, "Nonexistent service");
     }
 }

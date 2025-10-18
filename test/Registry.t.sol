@@ -59,40 +59,6 @@ contract RegistryTest is Test {
     }
 
     function test_integration() public {
-        // registry doesn't have allowance to stake the user's tokens
-        vm.startPrank(user);
-        vm.expectRevert(
-            abi.encodeWithSelector(IERC20Errors.ERC20InsufficientAllowance.selector, address(registry), 0, 100)
-        );
-        registry.stake(100);
-        vm.stopPrank();
-
-        // not enough allowance (this one isn't needed)
-        vm.startPrank(user);
-        token.approve(address(registry), 99);
-        vm.expectRevert(
-            abi.encodeWithSelector(IERC20Errors.ERC20InsufficientAllowance.selector, address(registry), 99, 100)
-        );
-        registry.stake(100);
-        vm.stopPrank();
-
-        // mint tokens to the user
-        token.mint(user, 100);
-
-        // approve the registry to spend the user's tokens and stake
-        vm.startPrank(user);
-        token.approve(address(registry), 100);
-        registry.stake(100);
-        vm.stopPrank();
-        // check emitted event
-
-        // check unstaking more than staked amount
-
-        // unstake
-        vm.prank(user);
-        registry.unstake(100);
-        // check emitted event
-
         // set profile
         vm.prank(tasker);
         registry.setProfile("profile");

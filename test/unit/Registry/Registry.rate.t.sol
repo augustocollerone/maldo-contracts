@@ -58,8 +58,6 @@ contract RegistryRateTest is Test {
 
         // Create service and deal for testing
         vm.startPrank(tasker);
-        token.approve(address(registry), STAKE_AMOUNT);
-        registry.stake(STAKE_AMOUNT);
         registry.addService("Test Service for Rating");
         serviceId = 0;
         registry.createDeal(serviceId, DEAL_PRICE, beneficiary, 1 days, "rating-test-deal");
@@ -215,8 +213,6 @@ contract RegistryRateTest is Test {
 
         // Setup another tasker with service
         vm.startPrank(anotherTasker);
-        token.approve(address(registry), STAKE_AMOUNT);
-        registry.stake(STAKE_AMOUNT);
         registry.addService("Another Service");
         vm.stopPrank();
 
@@ -245,7 +241,7 @@ contract RegistryRateTest is Test {
 
         // Act & Assert
         vm.prank(beneficiary);
-        vm.expectRevert(); // Should revert with array out-of-bounds
+        vm.expectRevert(IRegistry.InvalidDealId.selector);
         registry.rate(nonExistentDealId, rating, review);
     }
 
@@ -396,8 +392,6 @@ contract RegistryRateTest is Test {
     function test_rate_differentServices() public {
         // Arrange - Create second service and deal
         vm.startPrank(anotherTasker);
-        token.approve(address(registry), STAKE_AMOUNT);
-        registry.stake(STAKE_AMOUNT);
         registry.addService("Second Service");
         registry.createDeal(1, DEAL_PRICE, beneficiary, 1 days, "second-service-deal");
         vm.stopPrank();

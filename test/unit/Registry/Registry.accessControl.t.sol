@@ -46,8 +46,6 @@ contract RegistryAccessControlTest is Test {
         token.mint(tasker, 1000 ether);
 
         vm.startPrank(tasker);
-        token.approve(address(registry), 1000 ether);
-        registry.stake(100 ether);
         registry.addService("Test Service");
         serviceId = 0; // First service
         vm.stopPrank();
