@@ -49,29 +49,6 @@ contract Registry is IRegistry {
     }
 
     /// @inheritdoc IRegistry
-    function stake(uint256 _amount) external {
-        if (_amount == 0) revert InvalidAmount();
-
-        token.transferFrom(msg.sender, address(this), _amount);
-
-        users[msg.sender].stake += _amount;
-
-        emit Staked(msg.sender, _amount);
-    }
-
-    /// @inheritdoc IRegistry
-    function unstake(uint256 _amount) external {
-        if (_amount == 0) revert InvalidAmount();
-        if (users[msg.sender].stake < _amount) revert InsufficientStake();
-
-        users[msg.sender].stake -= _amount;
-
-        token.transfer(msg.sender, _amount);
-
-        emit Unstaked(msg.sender, _amount);
-    }
-
-    /// @inheritdoc IRegistry
     function setProfile(string calldata _profile) external {
         users[msg.sender].profile = _profile;
 
@@ -89,6 +66,7 @@ contract Registry is IRegistry {
 
     /// @inheritdoc IRegistry
     function updateService(uint40 _serviceId, string calldata _description) external {
+        if (_serviceId >= services.length) revert InvalidServiceId();
         if (services[_serviceId].tasker != msg.sender) revert Unauthorized();
 
         Service storage service = services[_serviceId];
@@ -105,6 +83,7 @@ contract Registry is IRegistry {
         uint256 _duration,
         string calldata _agreementURI
     ) external {
+        if (_serviceId >= services.length) revert InvalidServiceId();
         if (services[_serviceId].tasker != msg.sender) revert Unauthorized();
 
         if (_beneficiary == address(0)) revert InvalidBeneficiary();
@@ -128,6 +107,8 @@ contract Registry is IRegistry {
 
     /// @inheritdoc IRegistry
     function rate(uint40 _dealId, uint8 _rating, string calldata _review) external {
+        if (_dealId >= deals.length) revert InvalidDealId();
+
         if (deals[_dealId].beneficiary != msg.sender && services[deals[_dealId].serviceId].tasker != msg.sender) {
             revert Unauthorized();
         }
@@ -140,6 +121,7 @@ contract Registry is IRegistry {
 
     /// @inheritdoc IRegistry
     function dispute(uint40 _serviceId) external {
+        if (_serviceId >= services.length) revert InvalidServiceId();
         if (disputeResolver == address(0)) revert DisputeResolverNotSet();
 
         IDisputeResolver(disputeResolver).dispute(_serviceId);
@@ -154,6 +136,23 @@ contract Registry is IRegistry {
         disputeResolver = _disputeResolver;
 
         emit DisputeResolverSet(_disputeResolver);
+    }
+
+    // View functions
+
+    /// @inheritdoc IRegistry
+    function getToken() external view returns (address) {
+        return address(token);
+    }
+
+    /// @inheritdoc IRegistry
+    function servicesCount() external view returns (uint256) {
+        return services.length;
+    }
+
+    /// @inheritdoc IRegistry
+    function dealsCount() external view returns (uint256) {
+        return deals.length;
     }
 
     // Escrow functions
