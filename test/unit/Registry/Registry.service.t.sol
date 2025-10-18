@@ -69,11 +69,7 @@ contract RegistryServiceTest is Test {
         registry.addService(description);
 
         // Assert - check the service was created with ID 0
-        (
-            uint40 id,
-            address tasker,
-            string memory desc
-        ) = registry.services(0);
+        (uint40 id, address tasker, string memory desc) = registry.services(0);
 
         assertEq(id, 0, "Service ID should match");
         assertEq(tasker, alice, "Tasker should be the service creator");
@@ -141,27 +137,29 @@ contract RegistryServiceTest is Test {
         registry.addService(description);
 
         // Assert
-        (,,string memory desc) = registry.services(0);
+        (,, string memory desc) = registry.services(0);
         assertEq(desc, description, "Empty description should be allowed");
     }
 
     function test_addService_longDescription() public {
         // Arrange
-        string memory longDescription = string(abi.encodePacked(
-            "This is a very long description that tests the limits of the service description. ",
-            "It should be able to handle quite a bit of text without any issues. ",
-            "The goal is to ensure that we can create services with substantial descriptive text. ",
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor ",
-            "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud ",
-            "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
-        ));
+        string memory longDescription = string(
+            abi.encodePacked(
+                "This is a very long description that tests the limits of the service description. ",
+                "It should be able to handle quite a bit of text without any issues. ",
+                "The goal is to ensure that we can create services with substantial descriptive text. ",
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor ",
+                "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud ",
+                "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+            )
+        );
 
         // Act
         vm.prank(alice);
         registry.addService(longDescription);
 
         // Assert
-        (,,string memory desc) = registry.services(0);
+        (,, string memory desc) = registry.services(0);
         assertEq(desc, longDescription, "Long description should be stored correctly");
     }
 
@@ -177,7 +175,7 @@ contract RegistryServiceTest is Test {
         registry.updateService(0, updatedDescription);
 
         // Assert
-        (,,string memory desc) = registry.services(0);
+        (,, string memory desc) = registry.services(0);
         assertEq(desc, updatedDescription, "Service description should be updated");
     }
 
@@ -219,14 +217,14 @@ contract RegistryServiceTest is Test {
         vm.prank(alice);
         registry.updateService(0, "Third description");
 
-        (,,string memory desc) = registry.services(0);
+        (,, string memory desc) = registry.services(0);
         assertEq(desc, "Third description", "Service should support multiple updates");
     }
 
     function test_updateService_revertNonExistentService() public {
         // Act & Assert
         vm.prank(alice);
-        vm.expectRevert();  // This will catch out-of-bounds array access
+        vm.expectRevert(); // This will catch out-of-bounds array access
         registry.updateService(99, "Nonexistent service");
     }
 }

@@ -177,7 +177,7 @@ contract RegistryRateTest is Test {
         bool foundBeneficiaryRating = false;
         bool foundTaskerRating = false;
 
-        for (uint i = 0; i < ratings.length; i++) {
+        for (uint256 i = 0; i < ratings.length; i++) {
             if (ratings[i].reviewer == beneficiary) {
                 foundBeneficiaryRating = true;
                 assertEq(ratings[i].rating, beneficiaryRating, "Beneficiary rating should match");
@@ -336,13 +336,15 @@ contract RegistryRateTest is Test {
     function test_rate_longReview() public {
         // Arrange
         uint8 rating = 4;
-        string memory longReview = string(abi.encodePacked(
-            "This is a very long and detailed review that contains extensive feedback ",
-            "about the service provided. The review includes multiple paragraphs of text ",
-            "with specific details about the quality, timeliness, communication, and overall ",
-            "satisfaction with the service. This tests the contract's ability to handle ",
-            "large amounts of text in reviews without any issues or limitations."
-        ));
+        string memory longReview = string(
+            abi.encodePacked(
+                "This is a very long and detailed review that contains extensive feedback ",
+                "about the service provided. The review includes multiple paragraphs of text ",
+                "with specific details about the quality, timeliness, communication, and overall ",
+                "satisfaction with the service. This tests the contract's ability to handle ",
+                "large amounts of text in reviews without any issues or limitations."
+            )
+        );
 
         // Act
         vm.prank(beneficiary);
@@ -422,14 +424,26 @@ contract RegistryRateTest is Test {
 
     function test_rate_doesNotAffectDealData() public {
         // Arrange
-        (uint40 originalDealId, uint40 originalServiceId, address originalBeneficiary, uint256 originalAgreementId, uint256 originalPrice) = registry.deals(dealId);
+        (
+            uint40 originalDealId,
+            uint40 originalServiceId,
+            address originalBeneficiary,
+            uint256 originalAgreementId,
+            uint256 originalPrice
+        ) = registry.deals(dealId);
 
         // Act
         vm.prank(beneficiary);
         registry.rate(dealId, 5, "Rating should not affect deal data");
 
         // Assert - Deal data should be unchanged
-        (uint40 finalDealId, uint40 finalServiceId, address finalBeneficiary, uint256 finalAgreementId, uint256 finalPrice) = registry.deals(dealId);
+        (
+            uint40 finalDealId,
+            uint40 finalServiceId,
+            address finalBeneficiary,
+            uint256 finalAgreementId,
+            uint256 finalPrice
+        ) = registry.deals(dealId);
 
         assertEq(finalDealId, originalDealId, "Deal ID should not change");
         assertEq(finalServiceId, originalServiceId, "Service ID should not change");

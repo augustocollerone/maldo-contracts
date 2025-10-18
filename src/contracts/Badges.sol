@@ -144,11 +144,7 @@ contract Badges is ERC1155, Ownable, AccessControl, ReentrancyGuard {
     /// @param to The address to mint the badges to
     /// @param ids The IDs of the badges to mint
     /// @param amounts The amounts of badges to mint
-    function mintBatch(
-        address to,
-        uint256[] calldata ids,
-        uint256[] calldata amounts
-    ) external onlyRole(MINTER_ROLE) {
+    function mintBatch(address to, uint256[] calldata ids, uint256[] calldata amounts) external onlyRole(MINTER_ROLE) {
         for (uint256 i = 0; i < ids.length; ++i) {
             totalSupply[ids[i]] += amounts[i];
             _mint(to, ids[i], amounts[i], "");
@@ -231,12 +227,7 @@ contract Badges is ERC1155, Ownable, AccessControl, ReentrancyGuard {
         return balanceOf(user, badgeId) > 0;
     }
 
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(ERC1155, AccessControl)
-        returns (bool)
-    {
+    function supportsInterface(bytes4 interfaceId) public view override(ERC1155, AccessControl) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 }

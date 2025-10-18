@@ -210,10 +210,10 @@ contract RegistryCreateDealTest is Test {
     function test_createDeal_variousPrices() public {
         // Arrange
         uint256[] memory prices = new uint256[](4);
-        prices[0] = 1e18;     // 1 token
-        prices[1] = 50e18;    // 50 tokens
-        prices[2] = 1000e18;  // 1000 tokens
-        prices[3] = 0;        // Free service
+        prices[0] = 1e18; // 1 token
+        prices[1] = 50e18; // 50 tokens
+        prices[2] = 1000e18; // 1000 tokens
+        prices[3] = 0; // Free service
 
         // Act & Assert
         vm.startPrank(tasker);
@@ -359,11 +359,13 @@ contract RegistryCreateDealTest is Test {
     function test_createDeal_longAgreementURI() public {
         // Arrange
         uint256 dealPrice = 100e18;
-        string memory longURI = string(abi.encodePacked(
-            "ipfs://QmVeryLongAgreementURIThatContainsLotsOfTextAndInformation",
-            "WithAdditionalMetadataAndDescriptionsThatMightBeUsedInARealWorld",
-            "ScenarioWhereTheAgreementContainsComprehensiveTermsAndConditions"
-        ));
+        string memory longURI = string(
+            abi.encodePacked(
+                "ipfs://QmVeryLongAgreementURIThatContainsLotsOfTextAndInformation",
+                "WithAdditionalMetadataAndDescriptionsThatMightBeUsedInARealWorld",
+                "ScenarioWhereTheAgreementContainsComprehensiveTermsAndConditions"
+            )
+        );
 
         // Act & Assert - Should succeed with long URI
         vm.prank(tasker);

@@ -58,11 +58,7 @@ contract MockEscrow is IEscrowCustomBuyer {
         return ++_mockAgreementId;
     }
 
-    function createNativeTransaction(
-        uint256,
-        string memory,
-        address payable
-    ) external payable returns (uint256) {
+    function createNativeTransaction(uint256, string memory, address payable) external payable returns (uint256) {
         return ++_mockAgreementId;
     }
 

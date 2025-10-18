@@ -77,7 +77,9 @@ contract RegistryStakeTest is Test {
         token.approve(address(registry), 0);
 
         vm.expectRevert(
-            abi.encodeWithSelector(IERC20Errors.ERC20InsufficientAllowance.selector, address(registry), 0, STANDARD_STAKE)
+            abi.encodeWithSelector(
+                IERC20Errors.ERC20InsufficientAllowance.selector, address(registry), 0, STANDARD_STAKE
+            )
         );
         vm.prank(alice);
         registry.stake(STANDARD_STAKE);
@@ -100,11 +102,7 @@ contract RegistryStakeTest is Test {
 
         // Check user stake increased
         (, uint256 finalUserStake) = registry.users(alice);
-        assertEq(
-            finalUserStake,
-            initialUserStake + STANDARD_STAKE,
-            "User stake should increase"
-        );
+        assertEq(finalUserStake, initialUserStake + STANDARD_STAKE, "User stake should increase");
     }
 
     function test_stake_MultipleStakes() public {
@@ -118,11 +116,7 @@ contract RegistryStakeTest is Test {
 
         // Check total stake
         (, uint256 totalStake) = registry.users(alice);
-        assertEq(
-            totalStake,
-            STANDARD_STAKE * 2,
-            "User should be able to stake multiple times"
-        );
+        assertEq(totalStake, STANDARD_STAKE * 2, "User should be able to stake multiple times");
     }
 
     function test_stake_MultipleUsers() public {
