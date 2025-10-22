@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /// @title IRegistry
 interface IRegistry {
@@ -159,14 +159,14 @@ interface IRegistry {
     function setDisputeResolver(address _disputeResolver) external;
 
     /// @notice Returns the token address used for deals and escrow
-    /// @return Address of the ERC20 token
-    function getToken() external view returns (address);
+    /// @return _token the address of the token
+    function token() external view returns (IERC20 _token);
 
     /// @notice Returns the total number of services created
-    /// @return Total count of services
-    function servicesCount() external view returns (uint256);
+    /// @return _count total count of services
+    function servicesCount() external view returns (uint256 _count);
 
     /// @notice Returns the total number of deals created
-    /// @return Total count of deals
-    function dealsCount() external view returns (uint256);
+    /// @return _count total count of deals
+    function dealsCount() external view returns (uint256 _count);
 }

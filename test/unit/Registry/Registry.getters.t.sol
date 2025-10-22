@@ -40,7 +40,7 @@ contract RegistryGettersTest is Test {
     //////////////////////////////////////////////////////////////*/
 
     function test_getToken() public view {
-        assertEq(registry.getToken(), address(token));
+        assertEq(address(registry.token()), address(token));
     }
 
     function test_escrow() public view {
@@ -191,5 +191,4 @@ contract RegistryGettersTest is Test {
         assertEq(reviewer2, user2);
         assertEq(rating2, 3);
     }
-
 }

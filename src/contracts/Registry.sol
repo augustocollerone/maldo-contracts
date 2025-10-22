@@ -15,7 +15,7 @@ contract Registry is IRegistry {
     address public immutable owner;
 
     /// @notice The token that is used to stake and unstake
-    ERC20 internal immutable token;
+    IERC20 public immutable token;
 
     /// @notice Maps wallet addresses to user
     mapping(address _wallet => User _user) public users;
@@ -139,11 +139,6 @@ contract Registry is IRegistry {
     }
 
     // View functions
-
-    /// @inheritdoc IRegistry
-    function getToken() external view returns (address) {
-        return address(token);
-    }
 
     /// @inheritdoc IRegistry
     function servicesCount() external view returns (uint256) {
