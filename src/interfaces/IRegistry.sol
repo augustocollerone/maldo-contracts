@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.24;
 
 import {ERC20} from "@solady/tokens/ERC20.sol";
 
@@ -61,6 +61,7 @@ interface IRegistry {
         uint40 serviceId;
         address beneficiary;
         // address token;
+        uint256 agreementId;
         uint256 price;
     }
     // DealStatus status?
@@ -160,6 +161,18 @@ interface IRegistry {
     /// @dev
     /// @param _serviceId ID of the service with disputed rating
     function dispute(uint40 _serviceId) external;
+
+    /// @notice Creates a deal for a service
+    /// @param _serviceId ID of the service
+    /// @param _price Price of the deal
+    /// @param _beneficiary Address of the beneficiary
+    /// @param _agreementURI URI for the agreement
+    function createDeal(
+        uint40 _serviceId,
+        uint256 _price,
+        address _beneficiary,
+        string calldata _agreementURI
+    ) external;
 
     /// @notice Sets the dispute resolver address
     /// @dev

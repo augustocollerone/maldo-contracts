@@ -1,4 +1,6 @@
 @solady/=lib/solady/src/
+@kleros/escrow-v2/=lib/escrow-v2/contracts/src/
+@openzeppelin/=lib/openzeppelin-contracts/
 
 
 contracts/=src/contracts/

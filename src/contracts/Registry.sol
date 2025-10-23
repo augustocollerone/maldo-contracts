@@ -1,8 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.24;
 
 import {ERC20} from "@solady/tokens/ERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IRegistry} from "../interfaces/IRegistry.sol";
+// import {EscrowUniversal} from "@kleros/escrow-v2/EscrowUniversal.sol";
+// import {EscrowView} from "@kleros/escrow-v2/EscrowView.sol";
+import {IEscrow} from "@kleros/escrow-v2/interfaces/IEscrow.sol";
+import {Badges} from "./Badges.sol";
 import {IDisputeResolver} from "../interfaces/IDisputeResolver.sol";
 
 /// @title Registry
@@ -20,6 +25,7 @@ contract Registry is IRegistry {
     /// @notice Array of services
     Service[] public services;
 
+    /// @notice Array of deals
     Deal[] public deals;
 
     /// @notice Maps service ids to an array of ratings
@@ -28,9 +34,17 @@ contract Registry is IRegistry {
     /// @notice Address of the dispute resolver
     address public disputeResolver;
 
-    constructor(address _token) {
+    /// @notice The escrow contract
+    IEscrow public immutable escrow;
+
+    /// @notice The badges contract
+    Badges public immutable badges;
+
+    constructor(address _token, address _badges, address _escrow) {
         owner = msg.sender;
         token = ERC20(_token);
+        badges = Badges(_badges);
+        escrow = IEscrow(_escrow);
     }
 
     /// @inheritdoc IRegistry
@@ -83,21 +97,39 @@ contract Registry is IRegistry {
         emit ServiceUpdated(_serviceId, _description);
     }
 
-    function createDeal(uint40 _serviceId, uint256 _price, address _beneficiary) external {
+    /// @inheritdoc IRegistry
+    function createDeal(
+        uint40 _serviceId,
+        uint256 _price,
+        address _beneficiary,
+        string calldata _agreementURI
+    ) external {
         if (services[_serviceId].tasker != msg.sender) revert Unauthorized();
 
         if (_beneficiary == address(0)) revert InvalidBeneficiary();
 
         uint40 nextDealId = uint40(deals.length);
 
-        deals.push(Deal({id: nextDealId, serviceId: _serviceId, price: _price, beneficiary: _beneficiary}));
+        uint256 agreementId = _createEscrowAgreement(_beneficiary, _price, _agreementURI);
+
+        deals.push(
+            Deal({
+                id: nextDealId,
+                serviceId: _serviceId,
+                price: _price,
+                beneficiary: _beneficiary,
+                agreementId: agreementId
+            })
+        );
 
         emit DealCreated(nextDealId);
     }
 
     /// @inheritdoc IRegistry
     function rate(uint40 _dealId, uint8 _rating, string calldata _review) external {
-        if (deals[_dealId].beneficiary != msg.sender) revert Unauthorized();
+        if (deals[_dealId].beneficiary != msg.sender && services[deals[_dealId].serviceId].tasker != msg.sender) {
+            revert Unauthorized();
+        }
         // if (deals[_dealId].status != DealStatus.COMPLETED) revert DealNotCompleted();
 
         // add review to the service
@@ -124,5 +156,17 @@ contract Registry is IRegistry {
         disputeResolver = _disputeResolver;
 
         // todo: emit event?
+    }
+
+    // Escrow functions
+
+    function _createEscrowAgreement(
+        address _beneficiary,
+        uint256 _amount,
+        string calldata _agreementURI
+    ) internal returns (uint256 _agreementId) {
+        _agreementId = escrow.createERC20Transaction(
+            _amount, IERC20(address(token)), block.timestamp + 1 days, _agreementURI, payable(_beneficiary)
+        );
     }
 }

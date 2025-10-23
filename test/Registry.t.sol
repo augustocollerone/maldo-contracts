@@ -1,12 +1,28 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.24;
 
 import {ERC20} from "@solady/tokens/ERC20.sol";
 
 import {Registry} from "contracts/Registry.sol";
 import {MaldoToken} from "contracts/tokens/MaldoToken.sol";
+import {Badges} from "contracts/Badges.sol";
 import {Test, console} from "forge-std/Test.sol";
 import {IRegistry} from "interfaces/IRegistry.sol";
+
+// Mock Escrow contract for testing
+contract MockEscrow {
+    uint256 private nextId = 1;
+
+    function createERC20Transaction(
+        uint256,
+        address,
+        uint256,
+        string memory,
+        address payable
+    ) external returns (uint256) {
+        return nextId++;
+    }
+}
 
 contract RegistryTest is Test {
     address deployer = makeAddr("deployer");
@@ -16,13 +32,16 @@ contract RegistryTest is Test {
 
     Registry registry;
     MaldoToken token;
+    Badges badges;
+    MockEscrow escrow;
 
     function setUp() public {
         vm.startPrank(deployer);
 
         token = new MaldoToken();
-        // should i pass the erc20 instance here instead?
-        registry = new Registry(address(token));
+        badges = new Badges(deployer);
+        escrow = new MockEscrow();
+        registry = new Registry(address(token), address(badges), address(escrow));
 
         vm.stopPrank();
     }
@@ -81,16 +100,16 @@ contract RegistryTest is Test {
 
         vm.startPrank(user);
         vm.expectRevert(abi.encodeWithSelector(IRegistry.Unauthorized.selector));
-        registry.createDeal(0, 100, user);
+        registry.createDeal(0, 100, user, "test-agreement-uri");
         vm.stopPrank();
 
         vm.startPrank(tasker);
         vm.expectRevert(abi.encodeWithSelector(IRegistry.InvalidBeneficiary.selector));
-        registry.createDeal(0, 100, address(0));
+        registry.createDeal(0, 100, address(0), "test-agreement-uri");
         vm.stopPrank();
 
         vm.startPrank(tasker);
-        registry.createDeal(0, 100, user);
+        registry.createDeal(0, 100, user, "test-agreement-uri");
         vm.stopPrank();
 
         // rate a service

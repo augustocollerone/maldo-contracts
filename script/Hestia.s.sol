@@ -1,14 +1,18 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.24;
 
 import {ERC20} from "@solady/tokens/ERC20.sol";
 import {Script, console} from "forge-std/Script.sol";
 
-import {Registry} from "contracts/Registry.sol";
-import {MaldoToken} from "contracts/tokens/MaldoToken.sol";
+import {IRegistry} from "../src/interfaces/IRegistry.sol";
+import {MaldoToken} from "../src/contracts/tokens/MaldoToken.sol";
+import {Registry} from "../src/contracts/Registry.sol";
+import {Badges} from "../src/contracts/Badges.sol";
 
 contract MaldoScript is Script {
     function setUp() public {}
+
+    address public constant SEPOLIA_ESCROW_ADDRESS = 0xA01e6B988aeDae1fD4a748D6bfBcB8A438601DeE;
 
     function _deployer() internal returns (uint256, address) {
         uint256 deployerPK = vm.envUint("DEPLOYER_PRIVATE_KEY");
@@ -22,15 +26,31 @@ contract MaldoScript is Script {
     }
 
     function fullDeploy(address _token) public {
-        deployRegistry(_token);
+        uint256 privateKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
+        address deployer = vm.addr(privateKey);
+
+        // Deploy contracts in order
+        Badges badges = deployBadges(deployer);
+
+        Registry registry = deployRegistry(_token, address(badges), SEPOLIA_ESCROW_ADDRESS);
     }
 
-    function deployRegistry(address _token) public returns (Registry) {
+    function deployRegistry(address _token, address _badges, address _escrow) public returns (Registry) {
         uint256 privateKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
         vm.startBroadcast(privateKey);
-        Registry registry = new Registry(_token);
+        Registry registry = new Registry(_token, _badges, _escrow);
         console.log("Registry deployed at:", address(registry));
         vm.stopBroadcast();
+        return registry;
+    }
+
+    function deployBadges(address admin) public returns (Badges) {
+        uint256 privateKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
+        vm.startBroadcast(privateKey);
+        Badges badges = new Badges(admin);
+        console.log("Badges deployed at:", address(badges));
+        vm.stopBroadcast();
+        return badges;
     }
 
     function deployTokenMaldo() public {
