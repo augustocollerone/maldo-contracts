@@ -252,24 +252,20 @@ contract RegistrySetProfileTest is Test {
     //////////////////////////////////////////////////////////////*/
 
     function test_setProfile_doesNotAffectStake() public {
-        // Arrange - Setup user with stake
+        // Arrange - Setup user
         token.mint(user1, 1000 ether);
-        vm.startPrank(user1);
-        token.approve(address(registry), 500 ether);
-        registry.stake(500 ether);
-        vm.stopPrank();
 
-        // Verify initial stake
+        // Verify initial stake (should be 0 since stake/unstake removed)
         (, uint256 initialStake) = registry.users(user1);
-        assertEq(initialStake, 500 ether, "Initial stake should be set");
+        assertEq(initialStake, 0, "Initial stake should be 0");
 
         // Act - Set profile
         vm.prank(user1);
         registry.setProfile("Test profile");
 
-        // Assert - Stake should be unchanged
+        // Assert - Stake field should remain unchanged at 0
         (, uint256 finalStake) = registry.users(user1);
-        assertEq(finalStake, initialStake, "Stake should not be affected by profile setting");
+        assertEq(finalStake, initialStake, "Stake field should not be affected by profile setting");
     }
 
     function test_setProfile_doesNotAffectOtherUsers() public {

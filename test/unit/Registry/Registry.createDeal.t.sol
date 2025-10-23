@@ -54,15 +54,11 @@ contract RegistryCreateDealTest is Test {
 
         // Create services for testing
         vm.startPrank(tasker);
-        token.approve(address(registry), STAKE_AMOUNT);
-        registry.stake(STAKE_AMOUNT);
         registry.addService("Main Test Service");
         serviceId = 0; // First service
         vm.stopPrank();
 
         vm.startPrank(anotherTasker);
-        token.approve(address(registry), STAKE_AMOUNT);
-        registry.stake(STAKE_AMOUNT);
         registry.addService("Another Test Service");
         anotherServiceId = 1; // Second service
         vm.stopPrank();
@@ -266,7 +262,7 @@ contract RegistryCreateDealTest is Test {
 
         // Act & Assert
         vm.prank(tasker);
-        vm.expectRevert(); // Should revert with out-of-bounds array access
+        vm.expectRevert(IRegistry.InvalidServiceId.selector);
         registry.createDeal(nonExistentServiceId, dealPrice, beneficiary, 1 days, "nonexistent_service");
     }
 

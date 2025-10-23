@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /// @title IRegistry
 interface IRegistry {
@@ -52,16 +52,6 @@ interface IRegistry {
     //////////////////////////////////////////////////////
     /////////////////////// EVENTS ///////////////////////
     //////////////////////////////////////////////////////
-
-    /// @notice Emitted when a user stakes tokens
-    /// @param _user Address of the user who staked
-    /// @param _amount Amount of tokens staked
-    event Staked(address _user, uint256 _amount);
-
-    /// @notice Emitted when a user unstakes tokens
-    /// @param _user Address of the user who unstaked
-    /// @param _amount Amount of tokens unstaked
-    event Unstaked(address _user, uint256 _amount);
 
     /// @notice Emitted when a user updates their profile
     /// @param _user Address of the user who updated their profile
@@ -115,17 +105,15 @@ interface IRegistry {
     /// @notice Thrown when constructor parameters are invalid (zero address)
     error InvalidConstructorParams();
 
+    /// @notice Thrown when service ID doesn't exist
+    error InvalidServiceId();
+
+    /// @notice Thrown when deal ID doesn't exist
+    error InvalidDealId();
+
     //////////////////////////////////////////////////////
     ////////////////////// FUNCTIONS /////////////////////
     //////////////////////////////////////////////////////
-
-    /// @notice Stake tokens in the registry
-    /// @param _amount Amount of tokens to stake
-    function stake(uint256 _amount) external;
-
-    /// @notice Unstake tokens from the registry
-    /// @param _amount Amount of tokens to unstake
-    function unstake(uint256 _amount) external;
 
     /// @notice Sets or updates a user's profile
     /// @param _profile Ideally an IPFS hash, for now simply a string
@@ -169,4 +157,16 @@ interface IRegistry {
     /// @dev
     /// @param _disputeResolver Address of the dispute resolver
     function setDisputeResolver(address _disputeResolver) external;
+
+    /// @notice Returns the token address used for deals and escrow
+    /// @return _token the address of the token
+    function token() external view returns (IERC20 _token);
+
+    /// @notice Returns the total number of services created
+    /// @return _count total count of services
+    function servicesCount() external view returns (uint256 _count);
+
+    /// @notice Returns the total number of deals created
+    /// @return _count total count of deals
+    function dealsCount() external view returns (uint256 _count);
 }
