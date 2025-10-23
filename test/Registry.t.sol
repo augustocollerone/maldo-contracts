@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import {ERC20} from "@solady/tokens/ERC20.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {IERC20Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 
 import {Registry} from "contracts/Registry.sol";
 import {MaldoToken} from "contracts/tokens/MaldoToken.sol";
@@ -49,14 +50,18 @@ contract RegistryTest is Test {
     function test_integration() public {
         // registry doesn't have allowance to stake the user's tokens
         vm.startPrank(user);
-        vm.expectRevert(abi.encodeWithSelector(ERC20.InsufficientAllowance.selector));
+        vm.expectRevert(
+            abi.encodeWithSelector(IERC20Errors.ERC20InsufficientAllowance.selector, address(registry), 0, 100)
+        );
         registry.stake(100);
         vm.stopPrank();
 
         // not enough allowance (this one isn't needed)
         vm.startPrank(user);
         token.approve(address(registry), 99);
-        vm.expectRevert(abi.encodeWithSelector(ERC20.InsufficientAllowance.selector));
+        vm.expectRevert(
+            abi.encodeWithSelector(IERC20Errors.ERC20InsufficientAllowance.selector, address(registry), 99, 100)
+        );
         registry.stake(100);
         vm.stopPrank();
 

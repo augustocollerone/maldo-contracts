@@ -7,7 +7,7 @@ import {Badges} from "../../../src/contracts/Badges.sol";
 import {IRegistry} from "../../../src/interfaces/IRegistry.sol";
 import {MockEscrow} from "../../mocks/MockEscrow.sol";
 import {MockToken} from "../../mocks/MockToken.sol";
-import {ERC20} from "@solady/tokens/ERC20.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract RegistryUnstakeTest is Test {
     Registry public registry;

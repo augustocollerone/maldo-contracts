@@ -1,28 +1,29 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import {ERC1155} from "@solady/tokens/ERC1155.sol";
-import {OwnableRoles} from "@solady/auth/OwnableRoles.sol";
-import {ReentrancyGuard} from "@solady/utils/ReentrancyGuard.sol";
-import {LibString} from "@solady/utils/LibString.sol";
+import {ERC1155} from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 /// @title Badges
 /// @notice ERC1155 token contract for profile badges
-contract Badges is ERC1155, OwnableRoles, ReentrancyGuard {
-    using LibString for uint256;
+contract Badges is ERC1155, Ownable, AccessControl, ReentrancyGuard {
+    using Strings for uint256;
 
     /*//////////////////////////////////////////////////////////////
                                 CONSTANTS
     //////////////////////////////////////////////////////////////*/
 
     /// @notice Role for minting badges
-    uint256 public constant MINTER_ROLE = _ROLE_0;
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     /// @notice Role for managing badge metadata and creation
-    uint256 public constant BADGE_MANAGER_ROLE = _ROLE_1;
+    bytes32 public constant BADGE_MANAGER_ROLE = keccak256("BADGE_MANAGER_ROLE");
 
     /// @notice Role for pausing functionality (if needed in future)
-    uint256 public constant PAUSER_ROLE = _ROLE_2;
+    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     /*//////////////////////////////////////////////////////////////
                                 STORAGE
@@ -79,13 +80,13 @@ contract Badges is ERC1155, OwnableRoles, ReentrancyGuard {
     /// @notice Constructor
     /// @param admin Address that will have admin role
     /// @dev Sets up the contract with initial roles and URI
-    constructor(address admin) {
-        if (admin == address(0)) revert InvalidParameters();
-
-        _initializeOwner(admin);
-
+    /// @dev OpenZeppelin's Ownable already checks for address(0)
+    constructor(address admin) ERC1155("") Ownable(admin) {
         // Grant roles to the admin
-        _grantRoles(admin, MINTER_ROLE | BADGE_MANAGER_ROLE | PAUSER_ROLE);
+        _grantRole(DEFAULT_ADMIN_ROLE, admin);
+        _grantRole(MINTER_ROLE, admin);
+        _grantRole(BADGE_MANAGER_ROLE, admin);
+        _grantRole(PAUSER_ROLE, admin);
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -100,7 +101,7 @@ contract Badges is ERC1155, OwnableRoles, ReentrancyGuard {
     function createBadge(
         string calldata name,
         string calldata description
-    ) external onlyRoles(BADGE_MANAGER_ROLE) returns (uint256 badgeId) {
+    ) external onlyRole(BADGE_MANAGER_ROLE) returns (uint256 badgeId) {
         if (bytes(name).length == 0) revert InvalidParameters();
 
         badgeId = nextBadgeId++;
@@ -118,7 +119,7 @@ contract Badges is ERC1155, OwnableRoles, ReentrancyGuard {
         uint256 badgeId,
         string calldata name,
         string calldata description
-    ) external onlyRoles(BADGE_MANAGER_ROLE) {
+    ) external onlyRole(BADGE_MANAGER_ROLE) {
         Badge storage badge = badges[badgeId];
         badge.name = name;
         badge.description = description;
@@ -134,7 +135,7 @@ contract Badges is ERC1155, OwnableRoles, ReentrancyGuard {
     /// @param to The address to mint the badge to
     /// @param id The ID of the badge to mint
     /// @param amount The amount of badges to mint
-    function mint(address to, uint256 id, uint256 amount) external onlyRoles(MINTER_ROLE) {
+    function mint(address to, uint256 id, uint256 amount) external onlyRole(MINTER_ROLE) {
         totalSupply[id] += amount;
         _mint(to, id, amount, "");
     }
@@ -147,7 +148,7 @@ contract Badges is ERC1155, OwnableRoles, ReentrancyGuard {
         address to,
         uint256[] calldata ids,
         uint256[] calldata amounts
-    ) external onlyRoles(MINTER_ROLE) {
+    ) external onlyRole(MINTER_ROLE) {
         for (uint256 i = 0; i < ids.length; ++i) {
             totalSupply[ids[i]] += amounts[i];
             _mint(to, ids[i], amounts[i], "");
@@ -169,7 +170,7 @@ contract Badges is ERC1155, OwnableRoles, ReentrancyGuard {
         address to,
         uint256 id,
         uint256 amount,
-        bytes calldata data
+        bytes memory data
     ) public override {
         // Allow minting (from = address(0)) and burning (to = address(0))
         if (from != address(0) && to != address(0)) {
@@ -190,9 +191,9 @@ contract Badges is ERC1155, OwnableRoles, ReentrancyGuard {
     function safeBatchTransferFrom(
         address from,
         address to,
-        uint256[] calldata ids,
-        uint256[] calldata amounts,
-        bytes calldata data
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
     ) public override {
         // Allow minting (from = address(0)) and burning (to = address(0))
         if (from != address(0) && to != address(0)) {
@@ -230,7 +231,12 @@ contract Badges is ERC1155, OwnableRoles, ReentrancyGuard {
         return balanceOf(user, badgeId) > 0;
     }
 
-    function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC1155, AccessControl)
+        returns (bool)
+    {
         return super.supportsInterface(interfaceId);
     }
 }
