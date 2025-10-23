@@ -100,16 +100,16 @@ contract RegistryTest is Test {
 
         vm.startPrank(user);
         vm.expectRevert(abi.encodeWithSelector(IRegistry.Unauthorized.selector));
-        registry.createDeal(0, 100, user, "test-agreement-uri");
+        registry.createDeal(0, 100, user, 1 days, "test-agreement-uri");
         vm.stopPrank();
 
         vm.startPrank(tasker);
         vm.expectRevert(abi.encodeWithSelector(IRegistry.InvalidBeneficiary.selector));
-        registry.createDeal(0, 100, address(0), "test-agreement-uri");
+        registry.createDeal(0, 100, address(0), 1 days, "test-agreement-uri");
         vm.stopPrank();
 
         vm.startPrank(tasker);
-        registry.createDeal(0, 100, user, "test-agreement-uri");
+        registry.createDeal(0, 100, user, 1 days, "test-agreement-uri");
         vm.stopPrank();
 
         // rate a service

@@ -5,18 +5,6 @@ import {ERC20} from "@solady/tokens/ERC20.sol";
 
 /// @title IRegistry
 interface IRegistry {
-    /// @notice Status of a service in the registry
-    /// @dev Unused
-    /// @param NEW Initial state when service is created
-    /// @param VALIDATED Service has been validated/approved
-    /// @param BANNED Service has been banned from the platform
-    /// @param CANCELLED Service has been cancelled by the owner
-    enum Status {
-        NEW,
-        VALIDATED,
-        BANNED,
-        CANCELLED
-    }
 
     /// @notice User structure
     /// @param profile Ideally an IPFS hash, for now simply a string
@@ -29,13 +17,11 @@ interface IRegistry {
     /// @notice Service listing structure
     /// @dev
     /// @param id Unique identifier for the service
-    /// @param owner Address of the service provider
-    /// @param status Current status of the service
+    /// @param tasker Address of the service provider
     /// @param description Ideally an IPFS hash, for now simply a string
     struct Service {
         uint40 id;
         address tasker;
-        Status status;
         string description;
     }
 
@@ -53,19 +39,16 @@ interface IRegistry {
     /// @dev
     /// @param id ID of the deal
     /// @param serviceId ID of the service
-    /// @token Address of the token being used for the deal
-    /// @param price Price of the service
     /// @param beneficiary Address of the beneficiary
+    /// @param agreementId Kleros escrow agreement ID
+    /// @param price Price of the service
     struct Deal {
         uint40 id;
         uint40 serviceId;
         address beneficiary;
-        // address token;
         uint256 agreementId;
         uint256 price;
     }
-    // DealStatus status?
-    // uint32 timeout?
 
     //////////////////////////////////////////////////////
     /////////////////////// EVENTS ///////////////////////
@@ -98,18 +81,22 @@ interface IRegistry {
     /// @param _dealId The new deal's id
     event DealCreated(uint40 _dealId);
 
-    /// @notice Emitted when a service receives a rating
-    /// @param _serviceId The rated service's id
+    /// @notice Emitted when a deal receives a rating
+    /// @param _dealId The rated deal's id
     /// @param _rating The rating given
-    event Rated(uint40 _serviceId, uint8 _rating);
-
-    //////////////////////////////////////////////////////
-    /////////////////////// ERRORS ///////////////////////
-    //////////////////////////////////////////////////////
+    event Rated(uint40 _dealId, uint8 _rating);
 
     /// @notice Emitted when a service rating is disputed
     /// @param _serviceId The disputed service's id
     event Disputed(uint40 _serviceId);
+
+    /// @notice Emitted when the dispute resolver is set or updated
+    /// @param disputeResolver The new dispute resolver address
+    event DisputeResolverSet(address indexed disputeResolver);
+
+    //////////////////////////////////////////////////////
+    /////////////////////// ERRORS ///////////////////////
+    //////////////////////////////////////////////////////
 
     /// @notice Error thrown when an invalid amount is provided
     error InvalidAmount();
@@ -125,6 +112,9 @@ interface IRegistry {
 
     /// @notice Thrown when the beneficiary address is zero
     error InvalidBeneficiary();
+
+    /// @notice Thrown when constructor parameters are invalid (zero address)
+    error InvalidConstructorParams();
 
     //////////////////////////////////////////////////////
     ////////////////////// FUNCTIONS /////////////////////
@@ -148,14 +138,14 @@ interface IRegistry {
 
     /// @notice Updates an existing service listing
     /// @param _serviceId ID of the service to update
-    /// @param _description Ideally an IPFS hash, for now simply a containing the new description
+    /// @param _description Ideally an IPFS hash, for now simply a string containing the new description
     function updateService(uint40 _serviceId, string calldata _description) external;
 
-    /// @notice Submits a rating for a service
-    /// @param _serviceId ID of the service to rate
+    /// @notice Submits a rating for a deal
+    /// @param _dealId ID of the deal to rate
     /// @param _rating A numerical rating, between 0 to 5
     /// @param _review Ideally an IPFS hash, for now simply an arbitrary string
-    function rate(uint40 _serviceId, uint8 _rating, string calldata _review) external;
+    function rate(uint40 _dealId, uint8 _rating, string calldata _review) external;
 
     /// @notice Initiates a dispute
     /// @dev
@@ -166,16 +156,18 @@ interface IRegistry {
     /// @param _serviceId ID of the service
     /// @param _price Price of the deal
     /// @param _beneficiary Address of the beneficiary
+    /// @param _duration Duration in seconds for the escrow timeout
     /// @param _agreementURI URI for the agreement
     function createDeal(
         uint40 _serviceId,
         uint256 _price,
         address _beneficiary,
+        uint256 _duration,
         string calldata _agreementURI
     ) external;
 
     /// @notice Sets the dispute resolver address
     /// @dev
-    /// @param _disputeResolver Address of the dispute resolver\
+    /// @param _disputeResolver Address of the dispute resolver
     function setDisputeResolver(address _disputeResolver) external;
 }
