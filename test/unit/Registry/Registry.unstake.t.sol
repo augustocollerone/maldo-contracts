@@ -96,8 +96,16 @@ contract RegistryUnstakeTest is Test {
         // Assertions
         (, uint256 finalStake) = registry.users(alice);
         assertEq(finalStake, 0, "User stake should be zero after full unstake");
-        assertEq(token.balanceOf(alice), initialUserBalance + STAKE_AMOUNT, "User token balance should increase by unstaked amount");
-        assertEq(token.balanceOf(address(registry)), initialRegistryBalance - STAKE_AMOUNT, "Registry token balance should decrease");
+        assertEq(
+            token.balanceOf(alice),
+            initialUserBalance + STAKE_AMOUNT,
+            "User token balance should increase by unstaked amount"
+        );
+        assertEq(
+            token.balanceOf(address(registry)),
+            initialRegistryBalance - STAKE_AMOUNT,
+            "Registry token balance should decrease"
+        );
     }
 
     /// @notice Test successful partial unstaking
@@ -116,8 +124,16 @@ contract RegistryUnstakeTest is Test {
         // Assertions
         (, uint256 finalUserStake) = registry.users(bob);
         assertEq(finalUserStake, initialUserStake - partialAmount, "User stake should decrease by unstaked amount");
-        assertEq(token.balanceOf(bob), initialUserBalance + partialAmount, "User token balance should increase by unstaked amount");
-        assertEq(token.balanceOf(address(registry)), initialRegistryBalance - partialAmount, "Registry token balance should decrease");
+        assertEq(
+            token.balanceOf(bob),
+            initialUserBalance + partialAmount,
+            "User token balance should increase by unstaked amount"
+        );
+        assertEq(
+            token.balanceOf(address(registry)),
+            initialRegistryBalance - partialAmount,
+            "Registry token balance should decrease"
+        );
     }
 
     // EVENT TESTING
@@ -151,9 +167,21 @@ contract RegistryUnstakeTest is Test {
 
         // Assertions
         (, uint256 finalUserStake) = registry.users(alice);
-        assertEq(finalUserStake, initialUserStake - (STAKE_AMOUNT + additionalStake / 2), "User stake should decrease correctly after multiple stakes");
-        assertEq(token.balanceOf(alice), initialUserBalance + (STAKE_AMOUNT + additionalStake / 2), "User token balance should increase correctly");
-        assertEq(token.balanceOf(address(registry)), initialRegistryBalance - (STAKE_AMOUNT + additionalStake / 2), "Registry token balance should decrease");
+        assertEq(
+            finalUserStake,
+            initialUserStake - (STAKE_AMOUNT + additionalStake / 2),
+            "User stake should decrease correctly after multiple stakes"
+        );
+        assertEq(
+            token.balanceOf(alice),
+            initialUserBalance + (STAKE_AMOUNT + additionalStake / 2),
+            "User token balance should increase correctly"
+        );
+        assertEq(
+            token.balanceOf(address(registry)),
+            initialRegistryBalance - (STAKE_AMOUNT + additionalStake / 2),
+            "Registry token balance should decrease"
+        );
     }
 
     /// @notice Test maximum stake unstaking for different users
@@ -164,7 +192,7 @@ contract RegistryUnstakeTest is Test {
         users[2] = makeAddr("Charlie");
 
         // Stake for each user
-        for (uint i = 0; i < users.length; i++) {
+        for (uint256 i = 0; i < users.length; i++) {
             vm.startPrank(users[i]);
             token.mint(users[i], INITIAL_BALANCE);
             token.approve(address(registry), type(uint256).max);

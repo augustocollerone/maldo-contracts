@@ -92,6 +92,31 @@ contract RegistryCreateDealTest is Test {
         assertTrue(agreementId > 0, "Agreement ID should be set");
     }
 
+    function test_createDeal_correctEscrowBuyerAndSeller() public {
+        // Arrange
+        uint256 dealPrice = 100e18;
+        string memory agreementURI = "ipfs://QmTestAgreement";
+
+        // Act
+        vm.prank(tasker);
+        registry.createDeal(serviceId, dealPrice, beneficiary, 1 days, agreementURI);
+
+        // Assert - verify escrow transaction has correct buyer and seller
+        (,, address dealBeneficiary, uint256 agreementId,) = registry.deals(0);
+
+        // Get the escrow transaction data
+        (,, uint256 deadline, string memory uri, address payable buyer, address payable seller) =
+            escrow.transactions(agreementId);
+
+        // In escrow context:
+        // - buyer = the beneficiary (customer who will receive the service and pays for it)
+        // - seller = the tasker (service provider who receives payment)
+        assertEq(buyer, beneficiary, "Escrow buyer should be the beneficiary");
+        assertEq(seller, tasker, "Escrow seller should be the tasker");
+        assertEq(deadline, block.timestamp + 1 days, "Escrow deadline should match");
+        assertEq(uri, agreementURI, "Escrow URI should match");
+    }
+
     function test_createDeal_multipleDealsSameService() public {
         // Arrange
         uint256 dealPrice1 = 100e18;
@@ -133,6 +158,32 @@ contract RegistryCreateDealTest is Test {
         assertEq(deal2ServiceId, anotherServiceId, "Second deal should be for another tasker's service");
     }
 
+    function test_createDeal_escrowDataForDifferentTaskers() public {
+        // Arrange
+        uint256 dealPrice = 150e18;
+
+        // Act - Both taskers create deals for their own services
+        vm.prank(tasker);
+        registry.createDeal(serviceId, dealPrice, beneficiary, 1 days, "tasker1_deal");
+
+        vm.prank(anotherTasker);
+        registry.createDeal(anotherServiceId, dealPrice, beneficiary, 1 days, "tasker2_deal");
+
+        // Assert - Verify escrow has correct buyer/seller for each deal
+        (,,, uint256 agreementId1,) = registry.deals(0);
+        (,,, uint256 agreementId2,) = registry.deals(1);
+
+        // First deal: buyer=beneficiary, seller=tasker
+        (,,,, address payable buyer1, address payable seller1) = escrow.transactions(agreementId1);
+        assertEq(buyer1, beneficiary, "First deal: buyer should be beneficiary");
+        assertEq(seller1, tasker, "First deal: seller should be tasker");
+
+        // Second deal: buyer=beneficiary, seller=anotherTasker
+        (,,,, address payable buyer2, address payable seller2) = escrow.transactions(agreementId2);
+        assertEq(buyer2, beneficiary, "Second deal: buyer should be beneficiary");
+        assertEq(seller2, anotherTasker, "Second deal: seller should be anotherTasker");
+    }
+
     function test_createDeal_withDifferentBeneficiaries() public {
         // Arrange
         address beneficiary2 = makeAddr("beneficiary2");
@@ -159,10 +210,10 @@ contract RegistryCreateDealTest is Test {
     function test_createDeal_variousPrices() public {
         // Arrange
         uint256[] memory prices = new uint256[](4);
-        prices[0] = 1e18;     // 1 token
-        prices[1] = 50e18;    // 50 tokens
-        prices[2] = 1000e18;  // 1000 tokens
-        prices[3] = 0;        // Free service
+        prices[0] = 1e18; // 1 token
+        prices[1] = 50e18; // 50 tokens
+        prices[2] = 1000e18; // 1000 tokens
+        prices[3] = 0; // Free service
 
         // Act & Assert
         vm.startPrank(tasker);
@@ -308,11 +359,13 @@ contract RegistryCreateDealTest is Test {
     function test_createDeal_longAgreementURI() public {
         // Arrange
         uint256 dealPrice = 100e18;
-        string memory longURI = string(abi.encodePacked(
-            "ipfs://QmVeryLongAgreementURIThatContainsLotsOfTextAndInformation",
-            "WithAdditionalMetadataAndDescriptionsThatMightBeUsedInARealWorld",
-            "ScenarioWhereTheAgreementContainsComprehensiveTermsAndConditions"
-        ));
+        string memory longURI = string(
+            abi.encodePacked(
+                "ipfs://QmVeryLongAgreementURIThatContainsLotsOfTextAndInformation",
+                "WithAdditionalMetadataAndDescriptionsThatMightBeUsedInARealWorld",
+                "ScenarioWhereTheAgreementContainsComprehensiveTermsAndConditions"
+            )
+        );
 
         // Act & Assert - Should succeed with long URI
         vm.prank(tasker);

@@ -5,7 +5,6 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /// @title IRegistry
 interface IRegistry {
-
     /// @notice User structure
     /// @param profile Ideally an IPFS hash, for now simply a string
     /// @param stake Amount of tokens staked by the user

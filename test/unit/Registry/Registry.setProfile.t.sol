@@ -130,13 +130,15 @@ contract RegistrySetProfileTest is Test {
 
     function test_setProfile_longProfileData() public {
         // Arrange - Create a long profile string
-        string memory longProfile = string(abi.encodePacked(
-            "This is a very long profile description that contains lots of information ",
-            "about the user including their skills, experience, background, and other ",
-            "relevant details that might be useful for potential clients or collaborators. ",
-            "The profile might include IPFS hashes, JSON metadata, or other structured data ",
-            "that represents a comprehensive user profile in a decentralized marketplace."
-        ));
+        string memory longProfile = string(
+            abi.encodePacked(
+                "This is a very long profile description that contains lots of information ",
+                "about the user including their skills, experience, background, and other ",
+                "relevant details that might be useful for potential clients or collaborators. ",
+                "The profile might include IPFS hashes, JSON metadata, or other structured data ",
+                "that represents a comprehensive user profile in a decentralized marketplace."
+            )
+        );
 
         // Act & Assert
         vm.expectEmit(true, false, false, false);
@@ -374,10 +376,12 @@ contract RegistrySetProfileTest is Test {
     function test_setProfile_gasComparisonShortVsLong() public {
         // Arrange
         string memory shortProfile = "Short";
-        string memory longProfile = string(abi.encodePacked(
-            "This is a much longer profile that should consume more gas due to ",
-            "the increased storage requirements and string handling operations"
-        ));
+        string memory longProfile = string(
+            abi.encodePacked(
+                "This is a much longer profile that should consume more gas due to ",
+                "the increased storage requirements and string handling operations"
+            )
+        );
 
         // Act - Test both scenarios (gas will be logged in test output)
         vm.prank(user1);
