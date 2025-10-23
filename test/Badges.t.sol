@@ -3,6 +3,7 @@ pragma solidity ^0.8.24;
 
 import {Test} from "forge-std/Test.sol";
 import {Badges} from "../src/contracts/Badges.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @title BadgesTest
 /// @dev Test contract for the simplified Badges ERC1155 implementation
@@ -22,11 +23,11 @@ contract BadgesTest is Test {
         badges = new Badges(admin);
 
         // Grant roles to specific addresses
-        uint256 minterRole = badges.MINTER_ROLE();
-        uint256 badgeManagerRole = badges.BADGE_MANAGER_ROLE();
+        bytes32 minterRole = badges.MINTER_ROLE();
+        bytes32 badgeManagerRole = badges.BADGE_MANAGER_ROLE();
 
-        badges.grantRoles(minter, minterRole);
-        badges.grantRoles(badgeManager, badgeManagerRole);
+        badges.grantRole(minterRole, minter);
+        badges.grantRole(badgeManagerRole, badgeManager);
 
         vm.stopPrank();
     }
@@ -229,20 +230,20 @@ contract BadgesTest is Test {
     //////////////////////////////////////////////////////////////*/
 
     function testOwnerCanGrantRoles() public {
-        uint256 minterRole = badges.MINTER_ROLE();
+        bytes32 minterRole = badges.MINTER_ROLE();
 
         vm.prank(admin);
-        badges.grantRoles(user1, minterRole);
+        badges.grantRole(minterRole, user1);
 
-        assertTrue(badges.hasAnyRole(user1, minterRole));
+        assertTrue(badges.hasRole(minterRole, user1));
     }
 
     function testNonOwnerCannotGrantRoles() public {
-        uint256 minterRole = badges.MINTER_ROLE();
+        bytes32 minterRole = badges.MINTER_ROLE();
 
         vm.expectRevert();
         vm.prank(user1);
-        badges.grantRoles(user2, minterRole);
+        badges.grantRole(minterRole, user2);
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -250,7 +251,7 @@ contract BadgesTest is Test {
     //////////////////////////////////////////////////////////////*/
 
     function testInvalidParameters() public {
-        vm.expectRevert(Badges.InvalidParameters.selector);
+        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableInvalidOwner.selector, address(0)));
         new Badges(address(0));
     }
 

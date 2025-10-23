@@ -1,41 +1,48 @@
-## Maldo
+# Maldo Contracts
 
-### Core Components
+Smart contracts for the Maldo decentralized marketplace
 
-#### Registry Contract
-`Registry.sol` is the main contract proposed idea, it currently has four* registries:
-- Users: maps users' wallets to their profile info
-- Services: maps a tasker service to the service's info
-- Deals: maps a tasker deal to its info
-- Ratings: maps deals to user feedback and scores, tracking service quality and user reputation
+## Core Components
 
-[!] We allow _anyone_ to interact with this Registry contract. In a later stage, we will restrict interactions exclusively to _MaldoWallets_, managed by an in-house API that handles wallet creation through Pimlico, or even through an authorized operator controlled by us.
+### Registry Contract (`Registry.sol`)
 
-#### Badges Reputation System
+**User Management:**
+- `stake(uint256)` / `unstake(uint256)` - Token staking/unstaking with MaldoToken
+- `setProfile(string)` - Profile management (IPFS hash or string)
 
-Not developed yet, but we would mint different badges to:
-- users that achieve certain level of activity (# of deals completed, # of reviews)
-- users that complete specific IRL courses
--
+**Service Management:**
+- `addService(string)` - Create service listings
+- `updateService(uint40, string)` - Update service descriptions (tasker only)
 
-Also, we're exploring using [EIP-6909](https://eips.ethereum.org/EIPS/eip-6909)
+**Deal & Rating System:**
+- `createDeal(uint40, uint256, address, string)` - Create deals with escrow integration
+- `rate(uint40, uint8, string)` - Dual-party rating system (0-5 scale)
+- `dispute(uint40)` - Dispute resolution system
 
-#### MaldoToken
+### Badges Contract (`Badges.sol`)
 
-Not used at the moment. Ideally we would allow taskers to create deals only if they havve available stake tokens. That way, in case of a dispute the `DisputResolver` would slash the tasker's stake.
+ERC1155-based reputation system with role-based access control:
 
-#### DisputeResolver
+**Features:**
+- Badge creation and metadata management
+- Role-based minting
+- Soul-bound
 
-Not used. Kleros is pushing an off-chain approach for dispute resolution so we hold the tinkering/develop of this.
+## Architecture
 
-That said, we did some explorations with Kleros' Escrow and TCRs and we're ready to re-take this path of development to ensure full integration with the Kleros applications.
+**Data Structures:**
+- **Users:** Profile + staked amount mapping
+- **Services:** ID, tasker, status, description
+- **Deals:** ID, service reference, beneficiary, escrow agreement, price
+- **Ratings:** Reviewer, score (0-5), review text per service
 
-### Dependencies
+**External Dependencies:**
+- Kleros' escrow-2: https://github.com/kleros/escrow-v2/
 
-We're currently using Pimlico to handle Wallet creation and interactions, we explored other alternatives, but in the end we opted for Pimlico.
-
-### Testing
-
-Not units, just a single integration test to ensure we can replicate the happy-path for the PoC website.
-
-We'll definitely improve this in the near future :D
+**Commands:**
+```bash
+forge build                    # Compile contracts
+forge test                     # Run test suite
+forge coverage                 # Generate coverage report
+forge test --gas-report        # Gas usage analysis
+```
