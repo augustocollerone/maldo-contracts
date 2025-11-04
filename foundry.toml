@@ -5,7 +5,7 @@ libs = ["lib"]
 
 [fmt]
 number_underscore = 'thousands'
-multiline_func_header = 'params_first_multi'
+multiline_func_header = 'params_first'
 
 [rpc_endpoints]
 arbitrum_sepolia = "${ARBITRUM_SEPOLIA_RPC}"

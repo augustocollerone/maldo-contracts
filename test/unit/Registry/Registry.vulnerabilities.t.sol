@@ -6,7 +6,6 @@ import {Registry} from "../../../src/contracts/Registry.sol";
 import {Badges} from "../../../src/contracts/Badges.sol";
 import {IRegistry} from "../../../src/interfaces/IRegistry.sol";
 import {MockEscrow} from "../../mocks/MockEscrow.sol";
-import {MaliciousEscrow} from "../../mocks/MaliciousEscrow.sol";
 import {MockDisputeResolver} from "../../mocks/MockDisputeResolver.sol";
 import {MockToken} from "../../mocks/MockToken.sol";
 
@@ -18,7 +17,6 @@ contract RegistryVulnerabilitiesTest is Test {
     MockToken public token;
     Badges public badges;
     MockEscrow public escrow;
-    MaliciousEscrow public maliciousEscrow;
 
     // Test users
     address public owner;
